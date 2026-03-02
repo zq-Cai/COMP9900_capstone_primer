@@ -9,12 +9,31 @@ services:
     # Data inside the container is lost on restart unless you persist it with a volume.
     ports:
       - "5432:5432"
+    
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
 
   backend:
     # TODO: you will need to add to this
+    # 新增：配置后端构建路径、端口和环境变量
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_NAME: marksdb
+      DB_USER: marksuser
+      DB_PASSWORD: markspass
+    depends_on:
+      - db
 
   frontend:
     # TODO: you will need to add to this
+    # 新增：配置前端构建路径和端口映射
+    build: ./frontend
+    ports:
+      - "8080:80"
 
   automark:
     build: ./automark
@@ -23,3 +42,7 @@ services:
       - db
     profiles:
       - debug
+
+# 新增：声明命名卷，用于数据库数据持久化
+volumes:
+  pgdata:
